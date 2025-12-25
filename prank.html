@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surprise For You ❤️</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: #000;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 伪装的入场遮罩 */
+        #start-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,1);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 0.5s;
+        }
+
+        /* 按钮做得和真的一样，降低警惕 */
+        #start-btn {
+            padding: 15px 50px;
+            font-size: 1.5em;
+            background: transparent;
+            border: 2px solid #d4af37;
+            color: #d4af37;
+            border-radius: 50px;
+            cursor: pointer;
+            animation: pulseBtn 2s infinite;
+        }
+
+        /* 恶搞内容区域 */
+        #prank-content {
+            display: none; /* 初始隐藏 */
+            text-align: center;
+            z-index: 10;
+        }
+
+        .emoji-big {
+            font-size: 8em;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: shake 0.5s infinite; /* 瑟瑟发抖/嘲讽的动画 */
+        }
+
+        .title {
+            font-size: 3em;
+            color: #ff4757;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px red;
+        }
+
+        .desc {
+            font-size: 1.5em;
+            color: #ccc;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .timer-box {
+            border: 2px dashed #666;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .time-text {
+            font-size: 1.2em;
+            color: #ffd700;
+            font-family: monospace;
+        }
+
+        /* 动画关键帧 */
+        @keyframes pulseBtn { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-15deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* 当时间到了显示的按钮 */
+        #real-link-btn {
+            display: none;
+            margin-top: 30px;
+            padding: 10px 30px;
+            background: #2ed573;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            text-decoration: none;
+            animation: pulseBtn 1s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-overlay">
+        <div style="font-size: 4em; margin-bottom: 20px;">🎁</div>
+        <button id="start-btn">点击开启生日惊喜</button>
+        <p style="margin-top: 15px; color: #666; font-size: 0.8em;">(请调大音量)</p>
+    </div>
+
+    <div id="prank-content">
+        <div class="emoji-big">😏</div>
+        <div class="title">你个老六！</div>
+        <div class="desc">
+            我就知道你会忍不住偷看！<br>
+            还没到零点呢，想看惊喜？<br>
+            <span style="color: #ff6b81">没门！</span>
+        </div>
+
+        <div class="timer-box">
+            <p style="margin-bottom: 10px; opacity: 0.8;">乖乖等到零点吧：</p>
+            <div id="countdown" class="time-text">计算中...</div>
+        </div>
+
+        <a href="index.html" id="real-link-btn">时间到了！点这里看真的惊喜 👉</a>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="figure/music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // ================= 配置区域 =================
+        // 设置目标时间（正式生日时间）
+        // 比如 2025年10月26日 00:00:00
+        const targetDate = new Date("2025/12/26 00:00:00").getTime(); 
+        // ===========================================
+
+        const startBtn = document.getElementById('start-btn');
+        const startOverlay = document.getElementById('start-overlay');
+        const prankContent = document.getElementById('prank-content');
+        const bgMusic = document.getElementById('bgMusic');
+        const realLinkBtn = document.getElementById('real-link-btn');
+        const countdownEl = document.getElementById('countdown');
+
+        startBtn.addEventListener('click', () => {
+            // 假装加载一下，增加真实感
+            startBtn.textContent = "加载惊喜中...";
+            
+            // 播放音乐（也可以换成搞笑音效，这里复用music.mp3）
+            bgMusic.play().catch(e => console.log(e));
+
+            setTimeout(() => {
+                // 突然移除遮罩，显示恶搞
+                startOverlay.style.display = 'none';
+                prankContent.style.display = 'block';
+                
+                // 开始倒计时逻辑
+                startTimer();
+            }, 1500); // 延迟1.5秒，制造悬念
+        });
+
+        function startTimer() {
+            setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance < 0) {
+                    // 时间到了！
+                    countdownEl.innerHTML = "00:00:00";
+                    countdownEl.style.color = "#2ed573";
+                    document.querySelector('.title').textContent = "时间到啦！";
+                    document.querySelector('.desc').innerHTML = "终于等到你，还好没放弃~<br>快去看不一样的烟花吧！";
+                    document.querySelector('.emoji-big').textContent = "🎉";
+                    
+                    // 显示跳转按钮
+                    realLinkBtn.style.display = 'inline-block';
+                    return;
+                }
+
+                // 计算时间
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                countdownEl.innerHTML = `${days}天 ${hours}小时 ${minutes}分 ${seconds}秒`;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
